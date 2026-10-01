@@ -30,7 +30,7 @@ const quotes = testimonials.filter((q) => isSet(q.text) && isSet(q.author));
           <p class="lead animate-fade-up delay-2">{t.hero.lead}</p>
 
           <div class="cluster animate-fade-up delay-3">
-            <a class="btn btn--primary btn--lg" href="/reservation">
+            <a class="btn btn--primary btn--lg" href="/booking">
               <Icon name="calendar" strokeWidth={1.9} />
               {site.booking.ctaLabel}
             </a>
@@ -166,7 +166,7 @@ const quotes = testimonials.filter((q) => isSet(q.text) && isSet(q.author));
     eyebrow={t.cta.eyebrow}
     title={t.cta.title}
     lead={t.cta.lead}
-    primaryHref="/reservation"
+    primaryHref="/booking"
     secondaryLabel={t.cta.secondaryCta}
     secondaryHref="/contact"
   />

@@ -24,7 +24,7 @@ export const site = {
   // ------------------------------------------------------------------ MARQUE
   brand: {
     name: 'MindSpriint', // nom de la marque (ex. « Focusla »). Vide => le logo affiche ui.brandFallback.
-    tagline: 'Coaching sportif, intensité maîtrisée', // sur-titre court (pied de page, JSON-LD)
+    tagline: 'Personal training, intensity under control', // sur-titre court (pied de page, JSON-LD)
   },
 
   /** URL publique complète, sans barre oblique finale. Doit correspondre à public/CNAME. */
@@ -70,8 +70,8 @@ export const site = {
   booking: {
     /** Lien public Calendly. Vide => encart de réservation par e-mail / téléphone. */
     calendlyUrl: '', // TODO : ex. 'https://calendly.com/…/seance'
-    ctaLabel: 'Réserver une séance', // libellé des boutons principaux
-    ctaShortLabel: 'Réserver', // libellé court (en-tête)
+    ctaLabel: 'Book a session', // libellé des boutons principaux
+    ctaShortLabel: 'Book', // libellé court (en-tête)
     /**
      * Note affichée sous les boutons de réservation. OPTIONNELLE, vide par défaut.
      * N'y écris qu'une offre réellement pratiquée (ex. « Première séance offerte »).
@@ -82,29 +82,36 @@ export const site = {
   // -------------------------------------------------------------- NAVIGATION
   /** Les 5 pages du site, dans cet ordre (contrôlé par npm run check). */
   nav: [
-    { label: 'Accueil', href: '/' },
-    { label: 'À propos', href: '/a-propos' },
+    { label: 'Home', href: '/' },
+    { label: 'About', href: '/about' },
     { label: 'Services', href: '/services' },
-    { label: 'Réservation', href: '/reservation' },
+    { label: 'Booking', href: '/booking' },
     { label: 'Contact', href: '/contact' },
   ],
   /** Pages légales : liées depuis le pied de page uniquement. */
   legalNav: [
-    { label: 'Mentions légales', href: '/mentions-legales' },
-    { label: 'Confidentialité', href: '/confidentialite' },
+    { label: 'Legal notice', href: '/legal-notice' },
+    { label: 'Privacy', href: '/privacy' },
   ],
 
   // --------------------------------------------------------------------- SEO
   seo: {
-    lang: 'fr',
-    locale: 'fr_FR',
+    lang: 'en',
+    locale: 'en_GB',
     /** Image de partage 1200×630 déposée dans public/ (ex. '/og-image.jpg'). Vide => pas de balise og:image. */
     ogImage: '', // TODO (recommandé)
-    keywords: ['coach sportif', 'coaching sportif', 'programme d’entraînement personnalisé', 'coaching en visio', 'accompagnement nutritionnel'],
+    keywords: [
+      'personal trainer',
+      'personal training',
+      'strength and conditioning',
+      'training programme',
+      'online personal training',
+      'getting fit',
+    ],
   },
 
   // ------------------------------------------------------ MENTIONS LÉGALES
-  // Utilisé par /mentions-legales (art. 6 III de la LCEN) et /confidentialite (RGPD).
+  // Utilisé par /legal-notice (art. 6 III de la LCEN) et /privacy (RGPD).
   // Une mention obligatoire vide s'affiche « (à compléter) » sur ces pages.
   // L'e-mail et le téléphone de l'éditeur sont ceux de contact (ci-dessus).
   legal: {
@@ -121,7 +128,7 @@ export const site = {
     /** Hébergeur (GitHub Pages) — coordonnées publiques de GitHub, Inc. */
     host: {
       name: 'GitHub, Inc.',
-      address: '88 Colin P Kelly Jr Street, San Francisco, CA 94107, États-Unis',
+      address: '88 Colin P Kelly Jr Street, San Francisco, CA 94107, United States',
       phone: '+1 877 448 4820',
       url: 'https://github.com',
     },

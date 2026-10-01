@@ -35,7 +35,7 @@ const prepareItems = site.contact.modes.online ? [...t.prepare.items, t.prepare.
 const responseTime = isSet(site.contact.responseTime) ? site.contact.responseTime : '';
 ---
 
-<Base title={t.seo.title} description={t.seo.description} path="/reservation">
+<Base title={t.seo.title} description={t.seo.description} path="/booking">
   <Fragment slot="head">
     {faq.length > 0 && <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd(faq))} />}
   </Fragment>
@@ -144,7 +144,7 @@ const responseTime = isSet(site.contact.responseTime) ? site.contact.responseTim
               <h3 class="card__title">{t.module.consentTitle}</h3>
               <p class="card__text">{t.module.consentText}</p>
               <p class="card__meta">
-                {t.module.consentLinkBefore} <a href="/confidentialite#reservation-en-ligne">{t.module.consentLink}</a>.
+                {t.module.consentLinkBefore} <a href="/privacy#reservation-en-ligne">{t.module.consentLink}</a>.
               </p>
             </div>
             <div class="cluster">

@@ -32,6 +32,8 @@
 import { site } from './site';
 import { isSet, nb } from '../lib/utils';
 import { overrides } from './overrides';
+import { legalEn } from './legal-en';
+import { uiEn, modeLabelsEn, notFoundEn } from './ui-en';
 
 // ---------------------------------------------------------------- TYPES
 export type ModeKey = 'inPerson' | 'online' | 'remote';
@@ -72,6 +74,9 @@ export interface LegalSection {
 }
 
 // ------------------------------------------------------- VALEURS DÉRIVÉES
+/* Langue du site : choisit les blocs francais ou anglais. */
+const IS_FR_LANG = String(site.seo.lang).toLowerCase().startsWith('fr');
+
 const brand = isSet(site.brand.name) ? site.brand.name : '';
 const place = isSet(site.contact.area) ? site.contact.area : isSet(site.contact.city) ? site.contact.city : '';
 const m = site.contact.modes;
@@ -93,7 +98,7 @@ function formatsSentence(): string {
 }
 
 // ===================================================================== UI
-export const ui = {
+const uiFr = {
   brandFallback: 'Coaching sportif', // affiché dans le logo tant que site.brand.name est vide
   skipLink: 'Aller au contenu principal',
   homeLink: 'retour à l’accueil',
@@ -120,11 +125,15 @@ export const ui = {
   updatedLabel: `Dernière mise à jour${nb}:`,
 };
 
-export const modeLabels: Record<ModeKey, string> = {
+export const ui = IS_FR_LANG ? uiFr : (uiEn as unknown as typeof uiFr);
+
+const modeLabelsFr: Record<ModeKey, string> = {
   inPerson: 'En présentiel',
   online: 'En visio',
   remote: 'Programme à distance',
 };
+
+export const modeLabels: Record<ModeKey, string> = IS_FR_LANG ? modeLabelsFr : (modeLabelsEn as Record<ModeKey, string>);
 
 // ================================================================= OFFRES
 export const offers: Offer[] = [
@@ -644,7 +653,7 @@ export const contact = {
 };
 
 // ==================================================================== 404
-export const notFound = {
+const notFoundFr = {
   seo: { title: 'Page introuvable', description: 'La page demandée n’existe pas ou a été déplacée.' },
   eyebrow: 'Erreur 404',
   titleLead: 'Page',
@@ -652,6 +661,8 @@ export const notFound = {
   lead: 'La page demandée n’existe pas ou a été déplacée.',
   cta: 'Retour à l’accueil',
 };
+
+export const notFound = IS_FR_LANG ? notFoundFr : (notFoundEn as unknown as typeof notFoundFr);
 
 // ========================================================== PAGES LÉGALES
 // Modèles à relire par le propriétaire : ils décrivent exactement ce que fait
@@ -665,7 +676,7 @@ const editorName = isSet(L.businessName) ? L.businessName : 'l’éditeur du sit
 const channelList = [hasMail ? 'par e-mail' : '', hasTel ? 'par téléphone' : '', hasWa ? 'par WhatsApp' : ''].filter(Boolean);
 const channelsText = channelList.length > 1 ? `${channelList.slice(0, -1).join(', ')} ou ${channelList[channelList.length - 1]}` : channelList.join('');
 
-export const legal = {
+const legalFr = {
   mentions: {
     seo: { title: 'Mentions légales', description: `Mentions légales du site${nb}: éditeur, directeur de la publication, hébergeur et propriété intellectuelle.` },
     title: 'Mentions légales',
@@ -701,7 +712,7 @@ export const legal = {
       ] },
       { title: 'Données personnelles et cookies', paragraphs: [
         'Ce site ne dépose aucun cookie et ne comporte aucun formulaire.',
-      ], link: { before: 'Le traitement des données personnelles est décrit dans la', label: 'politique de confidentialité', href: '/confidentialite' } },
+      ], link: { before: 'Le traitement des données personnelles est décrit dans la', label: 'politique de confidentialité', href: '/privacy' } },
     ] as LegalSection[],
   },
 
@@ -828,7 +839,10 @@ function applyOverride(target: any, patch: any): void {
   }
 }
 
-const overridable: Record<string, unknown> = { ui, home, about, services, booking, contact, notFound, offers };
+/* Pages legales : francais ou anglais selon site.seo.lang. */
+export const legal = String(site.seo.lang).toLowerCase().startsWith('fr') ? legalFr : (legalEn as unknown as typeof legalFr);
+
+const overridable: Record<string, unknown> = { ui, home, about, services, booking, contact, notFound, offers, legal, modeLabels };
 for (const [key, patch] of Object.entries(overrides)) {
   if (!(key in overridable)) throw new Error(`overrides.ts : clé inconnue « ${key} »`);
   applyOverride(overridable[key], patch);

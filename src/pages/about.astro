@@ -34,7 +34,7 @@ const personJsonLd = coachName
   : null;
 ---
 
-<Base title={t.seo.title} description={t.seo.description} path="/a-propos">
+<Base title={t.seo.title} description={t.seo.description} path="/about">
   {personJsonLd && <script slot="head" type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />}
 
   <section class="section section--tight hero" aria-labelledby="hero-titre">
@@ -54,7 +54,7 @@ const personJsonLd = coachName
           }
 
           <div class="cluster">
-            <a class="btn btn--primary btn--lg" href="/reservation">{site.booking.ctaLabel}</a>
+            <a class="btn btn--primary btn--lg" href="/booking">{site.booking.ctaLabel}</a>
             <a class="btn btn--ghost btn--lg" href="/services">{t.hero.secondaryCta}</a>
           </div>
           {hasCtaNote && <p class="note" data-optional="cta-note">{site.booking.ctaNote}</p>}
@@ -184,7 +184,7 @@ const personJsonLd = coachName
     eyebrow={t.cta.eyebrow}
     title={t.cta.title}
     lead={t.cta.lead}
-    primaryHref="/reservation"
+    primaryHref="/booking"
     secondaryLabel={t.cta.secondaryCta}
     secondaryHref="/contact"
   />

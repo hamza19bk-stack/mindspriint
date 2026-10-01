@@ -29,7 +29,7 @@ const faq = visibleFaq(t.faq.items);
         <p class="lead animate-fade-up delay-2">{t.hero.lead}</p>
 
         <div class="cluster animate-fade-up delay-3">
-          <a class="btn btn--primary btn--lg" href="/reservation">{site.booking.ctaLabel}</a>
+          <a class="btn btn--primary btn--lg" href="/booking">{site.booking.ctaLabel}</a>
           <a class="btn btn--ghost btn--lg" href="/contact">{t.hero.secondaryCta}</a>
         </div>
 
@@ -96,7 +96,7 @@ const faq = visibleFaq(t.faq.items);
               <p class="card__foot">
                 <a
                   class:list={['btn', i === 0 ? 'btn--primary' : 'btn--ghost']}
-                  href={offer.ctaTarget === 'booking' ? '/reservation' : '/contact'}
+                  href={offer.ctaTarget === 'booking' ? '/booking' : '/contact'}
                 >
                   {offer.ctaLabel}
                 </a>
@@ -123,7 +123,7 @@ const faq = visibleFaq(t.faq.items);
   </Section>
 
   <Section id="deroulement" eyebrow={t.process.eyebrow} title={t.process.title} subtitle={t.process.subtitle}>
-    <a slot="actions" class="btn btn--ghost" href="/reservation">
+    <a slot="actions" class="btn btn--ghost" href="/booking">
       {site.booking.ctaLabel}
       <Icon name="arrow-right" strokeWidth={2} />
     </a>
@@ -153,7 +153,7 @@ const faq = visibleFaq(t.faq.items);
     eyebrow={t.cta.eyebrow}
     title={t.cta.title}
     lead={t.cta.lead}
-    primaryHref="/reservation"
+    primaryHref="/booking"
     secondaryLabel={t.cta.secondaryCta}
     secondaryHref="/contact"
   />

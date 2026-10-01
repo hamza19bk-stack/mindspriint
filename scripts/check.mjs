@@ -135,6 +135,10 @@ const { site, content, isSet } = await import(
   `data:text/javascript;base64,${Buffer.from(bundle.outputFiles[0].text).toString('base64')}`
 );
 
+/* Langue du site : la typographie et le vocabulaire interdit en dependent. */
+const LANG = String(site?.seo?.lang ?? 'fr').toLowerCase();
+const IS_FR = LANG.startsWith('fr');
+
 /* ================================================================= 3. THÈME */
 
 /** Jetons obligatoires de theme.css (documentés en tête de theme.css). */
@@ -475,9 +479,22 @@ for (const name of iconRefs) {
 }
 
 /* Vocabulaire interdit */
-const MEDICAL = /\b(soigner|soigne|soignez|guérir|guérit|guérison|traiter|thérapie|thérapies|thérapeutique|thérapeutiques|sport sur ordonnance|activité physique adaptée|perte de poids|maigrir|brûle-graisses?|détox)\b/i;
-const PROMISE = /\b(garanti|garantie|garantis|garanties|offert|offerte|offerts|offertes|gratuit|gratuite|gratuits|gratuites|satisfait ou remboursé|sans engagement|résultats? assurés?)\b/i;
-const PERIMETER = /\bCGV\b|conditions générales de vente|paiement en ligne|\btarifs?\b|\bforfaits?\b|\bprix\b/i;
+const MEDICAL_FR = /\b(soigner|soigne|soignez|guérir|guérit|guérison|traiter|thérapie|thérapies|thérapeutique|thérapeutiques|sport sur ordonnance|activité physique adaptée|perte de poids|maigrir|brûle-graisses?|détox)\b/i;
+const MEDICAL_EN = /\b(heal|heals|healing|cure|cures|cured|treat|treats|treatment|therapy|therapies|therapeutic|diagnose|diagnosis|rehabilitation|weight loss|lose weight|slimming|fat.?burning|detox|prescription)\b/i;
+const MEDICAL = IS_FR ? MEDICAL_FR : MEDICAL_EN;
+/* En anglais, une phrase de precaution (« not medical treatment », « no prescription ») est legitime. */
+const EN_DISCLAIMER = /\b(not|no|never|without|cannot|can.t|isn.t|aren.t|doesn.t|don.t)\b/i;
+const medicalHit = (s) => {
+  if (!MEDICAL.test(s)) return null;
+  if (!IS_FR && EN_DISCLAIMER.test(s)) return null;
+  return s.match(MEDICAL)[0];
+};
+const PROMISE_FR = /\b(garanti|garantie|garantis|garanties|offert|offerte|offerts|offertes|gratuit|gratuite|gratuits|gratuites|satisfait ou remboursé|sans engagement|résultats? assurés?)\b/i;
+const PROMISE_EN = /\b(guaranteed?|guarantees|free session|free trial|for free|no commitment|money.?back|risk.?free|results? guaranteed)\b/i;
+const PROMISE = IS_FR ? PROMISE_FR : PROMISE_EN;
+const PERIMETER_FR = /\bCGV\b|conditions générales de vente|paiement en ligne|\btarifs?\b|\bforfaits?\b|\bprix\b/i;
+const PERIMETER_EN = /\b(price|prices|pricing|fee|fees|packages|subscription|checkout|pay online|payment)\b|\bT&Cs?\b|terms and conditions|[£$€]\s?\d/i;
+const PERIMETER = IS_FR ? PERIMETER_FR : PERIMETER_EN;
 function walkStrings(value, visit, keyPath = '') {
   if (typeof value === 'string') visit(value, keyPath);
   else if (typeof value === 'function') return;
@@ -488,7 +505,8 @@ function walkStrings(value, visit, keyPath = '') {
 }
 for (const [name, value] of Object.entries(content)) {
   walkStrings(value, (s, p) => {
-    if (MEDICAL.test(s)) err('contenu', `content.${name}${p ? `.${p}` : ''} : vocabulaire médical interdit (« ${s.match(MEDICAL)[0]} »)`);
+    const medHit = medicalHit(s);
+    if (medHit) err('contenu', `content.${name}${p ? `.${p}` : ''} : vocabulaire médical interdit (« ${medHit} »)`);
     const isFactual = ['testimonials', 'credentials', 'stats', 'legal'].includes(name);
     if (PERIMETER.test(s)) err('périmètre', `content.${name}${p ? `.${p}` : ''} : hors périmètre (« ${s.match(PERIMETER)[0]} ») — ni prix, ni tarif, ni paiement en ligne, ni CGV`);
     if (!isFactual && PROMISE.test(s)) {
@@ -505,7 +523,7 @@ if (isSet(site.url)) {
   else if (cname && new URL(site.url).hostname !== cname) err('site.ts', `url (${new URL(site.url).hostname}) ≠ public/CNAME (${cname})`);
 }
 if (isSet(site.contact.email) && !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(site.contact.email)) err('site.ts', `contact.email invalide : ${site.contact.email}`);
-if (isSet(site.legal.siret) && !/^\d{14}$/.test(site.legal.siret.replace(/\s/g, ''))) err('site.ts', `legal.siret doit comporter 14 chiffres : ${site.legal.siret}`);
+if (IS_FR && isSet(site.legal.siret) && !/^\d{14}$/.test(site.legal.siret.replace(/\s/g, ''))) err('site.ts', `legal.siret doit comporter 14 chiffres : ${site.legal.siret}`);
 if (isSet(site.seo.ogImage) && !fs.existsSync(path.join(ROOT, 'public', site.seo.ogImage.replace(/^\//, '')))) {
   err('site.ts', `seo.ogImage « ${site.seo.ogImage} » introuvable dans public/`);
 }
@@ -516,12 +534,14 @@ if (isSet(site.booking.calendlyUrl) && !/^https:\/\/calendly\.com\//.test(site.b
   err('site.ts', 'booking.calendlyUrl doit commencer par https://calendly.com/');
 }
 if (!Object.values(site.contact.modes).some(Boolean)) err('site.ts', 'contact.modes : au moins un format doit être proposé');
-const NAV_EXPECTED = ['/', '/a-propos', '/services', '/reservation', '/contact'];
+const NAV_EXPECTED = IS_FR
+  ? ['/', '/a-propos', '/services', '/reservation', '/contact']
+  : ['/', '/about', '/services', '/booking', '/contact'];
 const navHrefs = site.nav.map((n) => n.href);
 if (navHrefs.join('|') !== NAV_EXPECTED.join('|')) {
   err('périmètre', `site.nav doit contenir exactement les 5 pages ${NAV_EXPECTED.join(', ')} (trouvé : ${navHrefs.join(', ')})`);
 }
-const LEGAL_PAGES = ['/mentions-legales', '/confidentialite'];
+const LEGAL_PAGES = IS_FR ? ['/mentions-legales', '/confidentialite'] : ['/legal-notice', '/privacy'];
 for (const href of LEGAL_PAGES) {
   if (!site.legalNav.some((n) => n.href === href)) err('site.ts', `legalNav doit contenir ${href}`);
 }
@@ -639,13 +659,13 @@ for (const [page, { raw, html, jsonLd, ids, idList }] of pages) {
   for (const t of readable) {
     const excerpt = t.trim().slice(0, 90);
     if (/ [:;!?]/.test(t)) err(scope, `espace ordinaire avant : ; ! ? (espace insécable attendue) : « ${excerpt} »`);
-    if (/[^\s  ]:(?!\/\/)(?=[\s ]|$)/.test(t) || /[^\s  (][;!?](?=[\s ]|$)/.test(t)) {
+    if (IS_FR && (/[^\s  ]:(?!\/\/)(?=[\s ]|$)/.test(t) || /[^\s  (][;!?](?=[\s ]|$)/.test(t))) {
       err(scope, `espace insécable manquante avant : ; ! ? : « ${excerpt} »`);
     }
-    if (/'/.test(t)) err(scope, `apostrophe droite (utiliser ’) : « ${excerpt} »`);
-    if (/«(?![  ])/.test(t) || /(?<![  ])»/.test(t)) err(scope, `guillemets « » sans espace insécable : « ${excerpt} »`);
+    if (IS_FR && /'/.test(t)) err(scope, `apostrophe droite (utiliser ’) : « ${excerpt} »`);
+    if (IS_FR && (/«(?![  ])/.test(t) || /(?<![  ])»/.test(t))) err(scope, `guillemets « » sans espace insécable : « ${excerpt} »`);
     if (PERIMETER.test(t)) err(scope, `hors périmètre (« ${t.match(PERIMETER)[0]} ») : « ${excerpt} »`);
-    if (MEDICAL.test(t)) err(scope, `vocabulaire médical interdit (« ${t.match(MEDICAL)[0]} ») : « ${excerpt} »`);
+    const mh = medicalHit(t); if (mh) err(scope, `vocabulaire médical interdit (« ${mh} ») : « ${excerpt} »`);
   }
 
   for (const m of html.matchAll(/\sdata-optional="([^"]+)"/g)) {
@@ -656,7 +676,7 @@ for (const [page, { raw, html, jsonLd, ids, idList }] of pages) {
 
 if (pages.has('/conditions-generales-de-vente')) err('périmètre', 'page /conditions-generales-de-vente présente : hors périmètre');
 if (htmlFiles.length) for (const p of [...NAV_EXPECTED, ...LEGAL_PAGES]) if (!pages.has(p)) err('dist', `page ${p} absente`);
-if (isSet(site.booking.calendlyUrl) && !pages.get('/reservation')?.raw.includes('data-calendly-load')) {
+if (isSet(site.booking.calendlyUrl) && !pages.get(IS_FR ? '/reservation' : '/booking')?.raw.includes('data-calendly-load')) {
   err('dist /reservation', 'calendlyUrl renseigné mais bouton « Afficher le calendrier de réservation » absent');
 }
 
